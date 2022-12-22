@@ -2,7 +2,7 @@
 title: "Hello world"
 description: A brief description of my document.
 authors:
-  - "Dylan Prins"
+  - "dylan.prins@protonmail.com"
 draft: false
 comments: true
 date: 2022-01-31
