@@ -4,8 +4,7 @@ on:
     branches:
       - main
     paths:
-      - "docs/en/US/*"
-      - "docs/en-US/.pages"
+      - "docs/*"
 jobs:
   Docs:
     name: build-documentation-for-pages
