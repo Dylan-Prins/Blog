@@ -1,4 +1,8 @@
 ---
+title: "This page title is a perfect clickbait!"
+Summary: A brief description of my document.
+authors:
+  - "Dylan Prins"
 draft: true
 comments: true
 date: 2022-01-31
@@ -6,6 +10,7 @@ categories:
   - Hello
   - World
 ---
+
 
 # Hello world
 

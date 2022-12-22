@@ -1,4 +1,7 @@
 site_name: Dylan-Prins Blog
+site_url: https://dylan-prins.github.io/Blog
+site_description: Dylan Prins' Blog
+
 docs_dir: docs/
 
 repo_name: Dylan-Prins
@@ -60,8 +63,6 @@ extra:
     - icon: fontawesome/brands/linkedin
       link: https://www.linkedin.com/in/dylan-prins-a50b01115/
 
-local:
-
 plugins:
   - mkdocs-simple-hooks:
       hooks:
@@ -70,3 +71,4 @@ plugins:
   - search
   - git-revision-date
   - tags
+  - rss
