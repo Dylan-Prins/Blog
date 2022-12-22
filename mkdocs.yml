@@ -1,5 +1,5 @@
 site_name: Dylan-Prins Blog
-site_url: https://dylan-prins.github.io/Blog
+site_url: https://dylan-prins.github.io/Blog/
 site_description: Dylan Prins' Blog
 
 docs_dir: docs/
@@ -71,4 +71,8 @@ plugins:
   - search
   - git-revision-date
   - tags
-  - rss
+  - rss:
+      comments_path: "#giscus"
+      match_path: "posts/*"
+      categories:
+        - categories

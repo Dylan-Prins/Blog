@@ -1,9 +1,9 @@
 ---
-title: "This page title is a perfect clickbait!"
-Summary: A brief description of my document.
+title: "Hello world"
+description: A brief description of my document.
 authors:
   - "Dylan Prins"
-draft: true
+draft: false
 comments: true
 date: 2022-01-31
 categories:
