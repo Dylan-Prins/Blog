@@ -1,4 +1,4 @@
-name: build-documentation
+name: build-posts
 on:
   push:
     branches:
@@ -7,13 +7,13 @@ on:
       - "docs/**"
 jobs:
   Docs:
-    name: build-documentation-for-pages
+    name: build-posts
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        uses: Tiryoh/actions-mkdocs@v0
+        uses: Dylan-Prins/actions-mkdocs@51c1b5c03dfbc0fa29cba896d625f62171571fdb
         with:
           requirements: "mkdocs.txt"
       - name: Deploy

@@ -1,6 +1,6 @@
 site_name: Dylan-Prins Blog
 site_url: https://dylan-prins.github.io/Blog/
-site_description: Dylan Prins' Blog
+site_description: Yet another blog about infrastructure as code
 
 docs_dir: docs/
 
