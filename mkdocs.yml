@@ -10,6 +10,8 @@ repo_url: https://github.com/Dylan-Prins/
 theme:
   language: en
   name: material
+  logo: assets/logo2.png
+  favicon: assets/logo2.png
   palette:
     primary: teal
     accent: teal
