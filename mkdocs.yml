@@ -67,6 +67,7 @@ plugins:
   - search
   - git-revision-date
   - tags
+  - social
   - rss:
       comments_path: "#giscus"
       match_path: "posts/*"
