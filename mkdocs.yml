@@ -7,12 +7,12 @@ docs_dir: docs/
 repo_name: Dylan-Prins
 repo_url: https://github.com/Dylan-Prins/
 
-extra_css:
-  - assets/stylesheets/extra.css
-
 theme:
   language: en
   name: material
+  palette:
+    primary: teal
+    accent: teal
   custom_dir: overrides
   font:
     text: Roboto
@@ -26,6 +26,7 @@ theme:
     - navigation.tabs
     - content.code.annotate
     - content.tabs.link
+    - toc.integrate
 
 markdown_extensions:
   - admonition
@@ -54,9 +55,6 @@ markdown_extensions:
       separator: "-"
 
 extra:
-  version:
-    provider: mike
-
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/Dylan-Prins
@@ -64,10 +62,6 @@ extra:
       link: https://www.linkedin.com/in/dylan-prins-a50b01115/
 
 plugins:
-  - mkdocs-simple-hooks:
-      hooks:
-        on_page_markdown: "docs.hooks:replace_maml"
-        on_nav: "docs.hooks:build_reference_nav"
   - search
   - git-revision-date
   - tags
