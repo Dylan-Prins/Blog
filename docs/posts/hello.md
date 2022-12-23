@@ -11,9 +11,6 @@ categories:
   - World
 ---
 
-
-# Hello world
-
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque nec
 maximus ex. Sed consequat, nulla quis malesuada dapibus, elit metus vehicula
 erat, ut egestas tellus eros at risus. In hac habitasse platea dictumst.
