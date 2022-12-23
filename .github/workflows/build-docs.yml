@@ -13,7 +13,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Build
-        uses: Dylan-Prins/actions-mkdocs@51c1b5c03dfbc0fa29cba896d625f62171571fdb
+        uses: Dylan-Prins/actions-mkdocs@main
         with:
           requirements: "mkdocs.txt"
       - name: Deploy
