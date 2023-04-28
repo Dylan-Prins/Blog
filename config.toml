@@ -1,4 +1,4 @@
-baseurl = "https://blist.vercel.app"
+baseurl = "https://dylan-prins.github.io/Blog/"
 metaDataFormat = "yaml"
 title = "Another DevOps blog"
 theme = "blist"
