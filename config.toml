@@ -1,10 +1,10 @@
-baseurl = "https://dylan-prins.github.io/Blog/"
+baseurl = "https://anotherdevops.blog/"
 metaDataFormat = "yaml"
 title = "Another DevOps blog"
 theme = "blist"
 
 DefaultContentLanguage = "en"
-DefaultContentLanguageInSubdir = true
+DefaultContentLanguageInSubdir = false
 [languages]
   [languages.en]
     contentDir = "content/en" #English
