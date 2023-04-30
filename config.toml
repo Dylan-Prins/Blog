@@ -63,7 +63,7 @@ DefaultContentLanguageInSubdir = true
   # Color for the intro details and social links block, not applicable for dark mode
   # Supported values: Any color from TailwindCSS default colors
   # Reference: https://tailwindcss.com/docs/customizing-colors
-  ascentColor = "bg-teal-600"
+  ascentColor = "bg-green-900"
 
   # The page bundle that is shown on the front page
   frontBundle = "blog"
@@ -115,13 +115,13 @@ DefaultContentLanguageInSubdir = true
 
   [[params.homepage.social.icons]]
     website = "linkedin"
-    url = "https://linkedin.com/in/"
+    url = "https://www.linkedin.com/in/dylan-prins-a50b01115/"
   [[params.homepage.social.icons]]
     website = "github"
-    url = "https://github.com/"
+    url = "https://github.com/Dylan-Prins"
   [[params.homepage.social.icons]]
     website = "buymeacoffee"
-    url = "https://www.buymeacoffee.com/"
+    url = "https://www.buymeacoffee.com/dylanprins"
 
 [[menu.main]]
   name = "About"
