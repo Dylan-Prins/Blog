@@ -29,6 +29,7 @@ jobs:
     - run: |
         npm install
         npm i -g postcss-cli
+        npm i && HUGO_ENVIRONMENT=production hugo --gc
 
     - name: Build
       run: hugo  --enableGitInfo --minify
