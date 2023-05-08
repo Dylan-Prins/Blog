@@ -1,4 +1,4 @@
-baseurl = "https://curious-longma-55eb38.netlify.app/"
+baseurl = "https://anotherdevops.blog/"
 metaDataFormat = "yaml"
 title = "Another DevOps blog"
 theme = "blist"
