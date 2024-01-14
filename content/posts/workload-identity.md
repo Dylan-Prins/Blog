@@ -6,6 +6,7 @@ description: ""
 tags: ["Workload Identity", "Azure DevOps", "App registrations", "Platform Engineering"]
 ShowToc: false
 ShowBreadCrumbs: false
+draft: true
 ---
 
 ## Introduction
