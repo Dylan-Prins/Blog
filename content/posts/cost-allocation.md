@@ -6,7 +6,7 @@ description: "how you can move costs to other subscription to create internal ch
 tags: ["Cost Allocation", "Azure", "FinOps", "Platform Engineering"]
 ShowToc: false
 ShowBreadCrumbs: false
-draft: true
+draft: false
 ---
 
 ## Introduction
