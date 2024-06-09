@@ -1,11 +1,9 @@
 ---
 author: "Dylan Prins"
-title: "That are not my resources, why should I have to pay for them!"
+title: "Mastering Cost Allocation in Azure: A Guide to Internal Charging"
 date: "2024-6-06"
-description: "how you can move costs to other subscription to create internal charging"
+description: "how you can move costs to other subscriptions to create internal charging"
 tags: ["Cost Allocation", "Azure", "FinOps", "Platform Engineering"]
-ShowToc: false
-ShowBreadCrumbs: false
 draft: false
 ---
 
@@ -27,9 +25,15 @@ Reference: [Microsoft learn](https://learn.microsoft.com/en-us/azure/cost-manage
 
 When it comes to cost allocation, the first step is deciding where your costs are coming from. You have three options to choose from:
 
-- Tags
-- Resource Groups
-- Subscriptions
+- Subscription
+- Resource Group
+- Tag
+
+### Subscription/Resource Group
+
+When you choose either of these options, all the costs associated with the selected subscription or resource group will be taken into account. This includes the costs of all resources and services within the subscription or resource group.
+
+### Tags
 
 It's important to note that if you choose to use Tags, some costs may still remain in the source subscription, like Defender for Cloud, even if you tag all the resources in a subscription. When tags are used, all the resources in your tenant with this tag will be selected.
 
@@ -39,7 +43,7 @@ Next, you'll need to decide where these costs are going. Interestingly, you have
 
 ![targets](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/img/cost-allocation/targets.png)
 
-Once you've selected your source and destination, it's time to decide how you want to distribute these costs. You have a few options here. You can choose to distribute the costs evenly or proportionally to:
+Once you've selected your source and destination (targets), it's time to decide how you want to distribute these costs. You have a few options here. You can choose to distribute the costs evenly or proportionally to:
 
 - Compute costs
 - Network costs
@@ -48,7 +52,7 @@ Once you've selected your source and destination, it's time to decide how you wa
 
 ![distribute costs](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/img/cost-allocation/distribute.png)
 
-This function is only available in the portal. If you're looking to use the API to configure Cost allocation, you'll need to do the calculations yourself. But don't worry, I've got you covered. I've written a handy PowerShell function that does this for you.
+Currently, there's no API available to distribute costs proportionally, so you'll need to configure this through the portal. If you're planning to use the API for cost allocation, you'll have to perform the calculations yourself. However, if you're looking to distribute costs evenly, I've got you covered. I've written a handy PowerShell function to help with this.
 
 ```powershell
 function New-TargetResources {
@@ -96,7 +100,7 @@ Imagine you're using a shared AKS cluster. You have multiple teams, each working
 
 #### Step 1: Tagging the Node Pools
 
-The first step is to tag each node pool. This makes it clear which 'spoke' it belongs to. In my case, I used a single tag that included an identifier of the workload and the environment, like this: `wrkld-prod`.
+The first step is to tag each node pool. This makes it clear which 'team' it belongs to. In my case, I used a single tag that included an identifier of the workload and the environment, like this: `wrkld-prod`.
 
 #### Step 2: Creating a Cost Allocation Rule
 
@@ -123,6 +127,7 @@ There are a few limitations to keep in mind:
 - You cannot order the rules. The rules are executed in the order they were created.
 - There is a function to allocate costs proportionally to network or compute cost, but this function is only available in the portal and not with the API.
 - Target subscriptions are limited to 200. This means if you have a lot of spokes, you should consider only allocating to production subscriptions.
+- You need to have EA administrator permissions, which you cant give to an app registration. (I talked to microsoft and they are not implementing this any time soon)
 
 ## References
 
