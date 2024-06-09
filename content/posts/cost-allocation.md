@@ -2,14 +2,12 @@
 author: "Dylan Prins"
 title: "Mastering Cost Allocation in Azure: A Guide to Internal Charging"
 date: "2024-6-06"
-description: "how you can move costs to other subscriptions to create internal charging"
+description: "How you can move costs to other subscriptions to create internal charging"
 tags: ["Cost Allocation", "Azure", "FinOps", "Platform Engineering"]
 draft: false
 ---
 
-## Introduction
-
-## What is Cost allocation
+## What is Cost allocation?
 
 In large enterprises, Azure services are often managed centrally but used by various departments. The central team usually wants to redistribute the cost of these shared services to the departments using them. This is where cost allocation in Azure's Cost Management comes in.
 
@@ -21,7 +19,7 @@ The allocated costs are visible in cost analysis, appearing as other items assoc
 
 Reference: [Microsoft learn](https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/allocate-costs)
 
-## How to Get Started with Cost Allocation
+## How to Get Started with Cost Allocation?
 
 When it comes to cost allocation, the first step is deciding where your costs are coming from. You have three options to choose from:
 
