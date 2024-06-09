@@ -1,6 +1,6 @@
 ---
 author: "Dylan Prins"
-title: "I did use those resources, why should i pay for them!"
+title: "That are not my resources, why should I have to pay for them!"
 date: "2024-6-06"
 description: "how you can move costs to other subscription to create internal charging"
 tags: ["Cost Allocation", "Azure", "FinOps", "Platform Engineering"]
@@ -36,18 +36,64 @@ to select which costs should be allocated you have 3 options:
 Keep in mind if you choose Tags, even if you tag all the resources in a subscriptions, it is possible some costs will stay in the source subscription
 like Defender for Cloud. When tags are used all the resources in your tenant with this tag will be selected.
 
-![source](./img/cost-allocation/source.png)
+![source](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/img/cost-allocation/source.png)
 
 ### Selecting the destination
 
 You have the same 3 options as destination, where tag is the strange one here.
 I have not tested this one yet, but it looks weird to allocate cost to a tag.
 
-![targets](../../assets/img/cost-allocation/targets.png)
+![targets](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/img/cost-allocation/targets.png)
 
 ### Distribute the selected costs
 
+For distributing the costs you have multiple options. you can distribute the costs evenly or propotional to:
 
+- compute costs
+- network costs
+- storage costs
+- total costs
+
+![distribute costs](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/img/cost-allocation/distribute.png)
+
+This function is only available in the portal. When you want to use the API to configure Cost allocation, you need to do the calculations yourself.
+I have written a PowerShell function does this for you.
+
+```powershell
+function New-TargetResources {
+  [CmdletBinding()]
+  param (
+    [Parameter(Mandatory, ValueFromPipeline, ValueFromPipelineByPropertyName)]
+    [string[]]$subscriptionId
+  )
+
+  begin {
+    $TargetResources
+
+    $percentage = 100 / $subscriptionId.count
+  }
+
+  process {
+    foreach ($subscription in $subscriptionId) {
+      $TargetResources += @{
+        name         = 'SubscriptionId'
+        policyType   = 'FixedProportion'
+        resourceType = 'Dimension'
+        values       = @(
+          @{
+            name       = $subscription
+            percentage = $percentage
+          }
+        )
+      }
+    }
+  }
+
+  end {
+    $TargetResources
+  }
+}
+```
 
 ## Usecases
 
@@ -56,14 +102,34 @@ I have not tested this one yet, but it looks weird to allocate cost to a tag.
 If you use a shared AKS cluster it is possible that you have multiple teams working on different nodepools with different sku's.
 If thats the case you want to allocate the costs of that specific nodepool to the right team.
 
-![aks-case](../../assets/img/cost-allocation/aks-use-case.png)
+![aks-case](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/img/cost-allocation/aks-use-case.png)
+
+#### Step 1: Tag all the node pools
+
+Every node pool should be tagged to, so that it is clear which spoke it belongs to.
+In my case I used 1 tag containing an Identifier of the workload and the environment like this `wrkld-prod`.
+
+#### Step 2: Create a Cost Allocation rule
+
+Create a Cost allocation rule with as source the tag for the spoke and distribute 100% to the corresponding subscription.
+The tag can now be used for other for other services as well. just tag the specific resource and it will rearrange the costs to the subscription.
 
 ### Azure Firewall
 
 When you have an Hub/spoke network model in Azure, you will most likely have a central firewall in place where te traffic of your spoke is
 going through. Cost allocation makes it possible to rearrange the cost of the subscription of the firewall to all the spokes.
 
-![firewall-case](../../assets/img/cost-allocation/firewall-use-case.png)
+![firewall-case](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/img/cost-allocation/firewall-use-case.png)
+
+#### Step 1: Retrieve all the spokes
+
+Retrieve all the spokes that you want to allocate the firewall cost to. I used the PowerShell commandlet `Get-AzManagementGroupSubscription`
+to get all the subscriptions ID's.
+
+#### Step 2: Create the target objects
+
+You can use the PowerShell function above to distribute the costs evenly over all the subscriptions.
+If you want the costs to distribute proportional to the network costs, you can do this step in the portal or retrieve information from the billing API.
 
 ## Limitations
 
