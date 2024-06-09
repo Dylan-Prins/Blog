@@ -23,41 +23,32 @@ The allocated costs are visible in cost analysis, appearing as other items assoc
 
 Reference: [Microsoft learn](https://learn.microsoft.com/en-us/azure/cost-management-billing/costs/allocate-costs)
 
-## How to implement it
+## How to Get Started with Cost Allocation
 
-### Selecting your source
-
-to select which costs should be allocated you have 3 options:
+When it comes to cost allocation, the first step is deciding where your costs are coming from. You have three options to choose from:
 
 - Tags
 - Resource Groups
 - Subscriptions
 
-Keep in mind if you choose Tags, even if you tag all the resources in a subscriptions, it is possible some costs will stay in the source subscription
-like Defender for Cloud. When tags are used all the resources in your tenant with this tag will be selected.
+It's important to note that if you choose to use Tags, some costs may still remain in the source subscription, like Defender for Cloud, even if you tag all the resources in a subscription. When tags are used, all the resources in your tenant with this tag will be selected.
 
 ![source](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/img/cost-allocation/source.png)
 
-### Selecting the destination
-
-You have the same 3 options as destination, where tag is the strange one here.
-I have not tested this one yet, but it looks weird to allocate cost to a tag.
+Next, you'll need to decide where these costs are going. Interestingly, you have the same three options as before. Allocating cost to a tag might seem a bit odd, and I haven't tested this one yet, but it's an option nonetheless.
 
 ![targets](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/img/cost-allocation/targets.png)
 
-### Distribute the selected costs
+Once you've selected your source and destination, it's time to decide how you want to distribute these costs. You have a few options here. You can choose to distribute the costs evenly or proportionally to:
 
-For distributing the costs you have multiple options. you can distribute the costs evenly or propotional to:
-
-- compute costs
-- network costs
-- storage costs
-- total costs
+- Compute costs
+- Network costs
+- Storage costs
+- Total costs
 
 ![distribute costs](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/img/cost-allocation/distribute.png)
 
-This function is only available in the portal. When you want to use the API to configure Cost allocation, you need to do the calculations yourself.
-I have written a PowerShell function does this for you.
+This function is only available in the portal. If you're looking to use the API to configure Cost allocation, you'll need to do the calculations yourself. But don't worry, I've got you covered. I've written a handy PowerShell function that does this for you.
 
 ```powershell
 function New-TargetResources {
@@ -95,47 +86,43 @@ function New-TargetResources {
 }
 ```
 
-## Usecases
+## Practical Applications of Cost Allocation
 
-### Shared AKS
+### Case Study: Shared AKS
 
-If you use a shared AKS cluster it is possible that you have multiple teams working on different nodepools with different sku's.
-If thats the case you want to allocate the costs of that specific nodepool to the right team.
+Imagine you're using a shared AKS cluster. You have multiple teams, each working on different node pools with different SKUs. In this scenario, you'd want to allocate the costs of each specific node pool to the appropriate team.
 
 ![aks-case](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/img/cost-allocation/aks-use-case.png)
 
-#### Step 1: Tag all the node pools
+#### Step 1: Tagging the Node Pools
 
-Every node pool should be tagged to, so that it is clear which spoke it belongs to.
-In my case I used 1 tag containing an Identifier of the workload and the environment like this `wrkld-prod`.
+The first step is to tag each node pool. This makes it clear which 'spoke' it belongs to. In my case, I used a single tag that included an identifier of the workload and the environment, like this: `wrkld-prod`.
 
-#### Step 2: Create a Cost Allocation rule
+#### Step 2: Creating a Cost Allocation Rule
 
-Create a Cost allocation rule with as source the tag for the spoke and distribute 100% to the corresponding subscription.
-The tag can now be used for other for other services as well. just tag the specific resource and it will rearrange the costs to the subscription.
+Next, you'll want to create a Cost Allocation Rule. Use the tag for the spoke as the source and distribute 100% to the corresponding subscription. The beauty of this is that the tag can now be used for other services as well. Simply tag the specific resource and it will automatically rearrange the costs to the subscription.
 
-### Azure Firewall
+### Case Study: Azure Firewall
 
-When you have an Hub/spoke network model in Azure, you will most likely have a central firewall in place where te traffic of your spoke is
-going through. Cost allocation makes it possible to rearrange the cost of the subscription of the firewall to all the spokes.
+If you're using a hub/spoke network model in Azure, chances are you have a central firewall in place where the traffic from your spoke is routed through. Cost allocation makes it possible to rearrange the cost from the subscription of the firewall to all the spokes.
 
 ![firewall-case](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/img/cost-allocation/firewall-use-case.png)
 
-#### Step 1: Retrieve all the spokes
+#### Step 1: Retrieving All the Spokes
 
-Retrieve all the spokes that you want to allocate the firewall cost to. I used the PowerShell commandlet `Get-AzManagementGroupSubscription`
-to get all the subscriptions ID's.
+First, you'll need to retrieve all the spokes that you want to allocate the firewall cost to. I used the PowerShell cmdlet `Get-AzManagementGroupSubscription` to get all the subscription IDs.
 
-#### Step 2: Create the target objects
+#### Step 2: Creating the Target Objects
 
-You can use the PowerShell function above to distribute the costs evenly over all the subscriptions.
-If you want the costs to distribute proportional to the network costs, you can do this step in the portal or retrieve information from the billing API.
+You can use the PowerShell function above to distribute the costs evenly over all the subscriptions. If you want the costs to distribute proportionally to the network costs, you can do this step in the portal or retrieve information from the billing API.
 
-## Limitations
+## Limitations to Keep in Mind
 
-- You cannot order the rules. the rules are executed in creation order.
-- There is a function to allocate costs with propotional to network or compute cost, but this function is only available in the portal and not with the API.
-- Target subscriptions is limited to 200. This means if you have a lot of spokes you should consider only allocate to production subscriptions.
+There are a few limitations to keep in mind:
+
+- You cannot order the rules. The rules are executed in the order they were created.
+- There is a function to allocate costs proportionally to network or compute cost, but this function is only available in the portal and not with the API.
+- Target subscriptions are limited to 200. This means if you have a lot of spokes, you should consider only allocating to production subscriptions.
 
 ## References
 
