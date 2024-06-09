@@ -33,7 +33,7 @@ When you choose either of these options, all the costs associated with the selec
 
 ### Tags
 
-It's important to note that if you choose to use Tags, some costs may still remain in the source subscription, like Defender for Cloud, even if you tag all the resources in a subscription. When tags are used, all the resources in your tenant with this tag will be selected.
+It's important to note that if you choose Tags, some costs may still remain in the source subscription, like Defender for Cloud, even if you tag all the resources in a subscription. When tags are used, all the resources in your tenant with this tag will be selected.
 
 ![source](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/img/cost-allocation/source.png)
 
@@ -125,7 +125,7 @@ There are a few limitations to keep in mind:
 - You cannot order the rules. The rules are executed in the order they were created.
 - There is a function to allocate costs proportionally to network or compute cost, but this function is only available in the portal and not with the API.
 - Target subscriptions are limited to 200. This means if you have a lot of spokes, you should consider only allocating to production subscriptions.
-- You need to have EA administrator permissions, which you cant give to an app registration. (I talked to microsoft and they are not implementing this any time soon)
+- You need to have EA administrator permissions, which you can't give to an app registration. (I talked to microsoft and they are not implementing this any time soon)
 
 ## References
 
