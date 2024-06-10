@@ -10,6 +10,9 @@ tags:
     - Platform Engineering
 draft: false
 preview: /cost-allocation.png
+params:
+    images:
+        - cover.png
 ---
 
 ## What is Cost allocation?
