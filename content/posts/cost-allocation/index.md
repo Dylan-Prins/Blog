@@ -1,7 +1,7 @@
 ---
 author: Dylan Prins
 title: "Mastering Cost Allocation in Azure"
-date: 2024-6-06
+date: 2024-06-10T12:30:00+02:00
 description: How you can move costs to other subscriptions to create internal charging
 tags:
     - Cost Allocation
