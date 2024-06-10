@@ -93,10 +93,10 @@ params:
   #   Text: "Suggest Changes" # edit text
   #   appendFilePath: true # to append file path to Edit link
 
-  # label:
-  #     text: "Home"
-  #     icon: icon.png
-  #     iconHeight: 35
+  label:
+      text: "Another Devops Blog"
+      icon: "https://raw.githubusercontent.com/Dylan-Prins/Blog/main/assets/images/favicon.png"
+      iconHeight: 35
 
   # analytics:
   #     google:
@@ -105,8 +105,8 @@ params:
   assets:
     disableHLJS: true
     favicon: "https://raw.githubusercontent.com/Dylan-Prins/Blog/main/assets/images/favicon.png"
-#     favicon16x16: "<link / abs url>"
-#     favicon32x32: "<link / abs url>"
+    favicon16x16: "https://raw.githubusercontent.com/Dylan-Prins/Blog/main/assets/images/favicon.png"
+    favicon32x32: "https://raw.githubusercontent.com/Dylan-Prins/Blog/main/assets/images/favicon.png"
 #     apple_touch_icon: "<link / abs url>"
 #     safari_pinned_tab: "<link / abs url>"
 
