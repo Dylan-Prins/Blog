@@ -60,7 +60,7 @@ params:
   ShowRssButtonInSectionTermList: true
   ShowToc: false
   comments: false
-  images: ["assets/images/favicon.png"] # default path for images
+  images: ["https://raw.githubusercontent.com/Dylan-Prins/Blog/main/assets/images/favicon.png"] # default path for images
 
   profileMode:
     enabled: false
