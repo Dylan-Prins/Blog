@@ -12,7 +12,7 @@ draft: false
 preview: /cost-allocation.png
 params:
     images:
-        - cover.png
+        - posts/cost-allocation/cover.png
 ---
 
 ## What is Cost allocation?
