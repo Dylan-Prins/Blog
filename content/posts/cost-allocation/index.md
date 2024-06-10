@@ -35,11 +35,11 @@ When you choose either of these options, all the costs associated with the selec
 
 It's important to note that if you choose Tags, some costs may still remain in the source subscription, like Defender for Cloud, even if you tag all the resources in a subscription. When tags are used, all the resources in your tenant with this tag will be selected.
 
-![source](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/img/cost-allocation/source.png)
+![source](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/cost-allocation/source.png)
 
 Next, you'll need to decide where these costs are going. Interestingly, you have the same three options as before. Allocating cost to a tag might seem a bit odd, and I haven't tested this one yet, but it's an option nonetheless.
 
-![targets](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/img/cost-allocation/targets.png)
+![targets](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/cost-allocation/targets.png)
 
 Once you've selected your source and destination (targets), it's time to decide how you want to distribute these costs. You have a few options here. You can choose to distribute the costs evenly or proportionally to:
 
@@ -48,7 +48,7 @@ Once you've selected your source and destination (targets), it's time to decide 
 - Storage costs
 - Total costs
 
-![distribute costs](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/img/cost-allocation/distribute.png)
+![distribute costs](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/cost-allocation/distribute.png)
 
 Currently, there's no API available to distribute costs proportionally, so you'll need to configure this through the portal. If you're planning to use the API for cost allocation, you'll have to perform the calculations yourself. However, if you're looking to distribute costs evenly, I've got you covered. I've written a handy PowerShell function to help with this.
 
@@ -94,7 +94,7 @@ function New-TargetResources {
 
 Imagine you're using a shared AKS cluster. You have multiple teams, each working on different node pools with different SKUs. In this scenario, you'd want to allocate the costs of each specific node pool to the appropriate team.
 
-![aks-case](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/img/cost-allocation/aks-use-case.png)
+![aks-case](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/cost-allocation/aks-use-case.png)
 
 #### Step 1: Tagging the Node Pools
 
@@ -108,7 +108,7 @@ Next, you'll want to create a Cost Allocation Rule. Use the tag for the spoke as
 
 If you're using a hub/spoke network model in Azure, chances are you have a central firewall in place where the traffic from your spoke is routed through. Cost allocation makes it possible to rearrange the cost from the subscription of the firewall to all the spokes.
 
-![firewall-case](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/img/cost-allocation/firewall-use-case.png)
+![firewall-case](https://raw.githubusercontent.com/Dylan-Prins/Blog/main/content/posts/cost-allocation/firewall-use-case.png)
 
 #### Step 1: Retrieving All the Spokes
 
