@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Tags on Another DevOps Blog</title>
+    <link>https://anotherdevops.blog/tags/</link>
+    <description>Recent content in Tags on Another DevOps Blog</description>
+    <image>
+      <title>Another DevOps Blog</title>
+      <url>https://raw.githubusercontent.com/Dylan-Prins/Blog/main/assets/images/favicon.png</url>
+      <link>https://raw.githubusercontent.com/Dylan-Prins/Blog/main/assets/images/favicon.png</link>
+    </image>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en</language>
+    <lastBuildDate>Mon, 10 Jun 2024 12:30:00 +0200</lastBuildDate><atom:link href="https://anotherdevops.blog/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Azure</title>
+      <link>https://anotherdevops.blog/tags/azure/</link>
+      <pubDate>Mon, 10 Jun 2024 12:30:00 +0200</pubDate>
+      
+      <guid>https://anotherdevops.blog/tags/azure/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Cost Allocation</title>
+      <link>https://anotherdevops.blog/tags/cost-allocation/</link>
+      <pubDate>Mon, 10 Jun 2024 12:30:00 +0200</pubDate>
+      
+      <guid>https://anotherdevops.blog/tags/cost-allocation/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>FinOps</title>
+      <link>https://anotherdevops.blog/tags/finops/</link>
+      <pubDate>Mon, 10 Jun 2024 12:30:00 +0200</pubDate>
+      
+      <guid>https://anotherdevops.blog/tags/finops/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Platform Engineering</title>
+      <link>https://anotherdevops.blog/tags/platform-engineering/</link>
+      <pubDate>Mon, 10 Jun 2024 12:30:00 +0200</pubDate>
+      
+      <guid>https://anotherdevops.blog/tags/platform-engineering/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>
