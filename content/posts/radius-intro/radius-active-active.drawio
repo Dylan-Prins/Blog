@@ -1,0 +1,64 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram id="radius-active-active" name="Radius active-active">
+    <mxGraphModel dx="900" dy="600" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="620" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="users" value="Users" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="370" y="20" width="160" height="44" as="geometry" />
+        </mxCell>
+
+        <mxCell id="afd" value="Azure Front Door&#10;(global routing &amp; failover)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#0078d4;strokeColor=#005a9e;fontColor=#ffffff;fontSize=13;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="330" y="110" width="240" height="56" as="geometry" />
+        </mxCell>
+
+        <mxCell id="envCloud" value="Environment: prod-cloud" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;verticalAlign=top;fontSize=13;fontStyle=1;fontColor=#333333" vertex="1" parent="1">
+          <mxGeometry x="40" y="230" width="380" height="330" as="geometry" />
+        </mxCell>
+        <mxCell id="aks" value="AKS cluster (Azure region)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;verticalAlign=top;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="70" y="280" width="320" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="radCloud" value="Radius Application" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;verticalAlign=top;fontSize=12;fontStyle=1;dashed=1" vertex="1" parent="1">
+          <mxGeometry x="95" y="320" width="270" height="185" as="geometry" />
+        </mxCell>
+        <mxCell id="feCloud" value="Frontend container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="120" y="360" width="220" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="dbCloud" value="PostgreSQL&#10;(Azure PaaS Recipe)" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;boundedLbl=1" vertex="1" parent="1">
+          <mxGeometry x="150" y="425" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="envEdge" value="Environment: prod-edge" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;dashed=1;verticalAlign=top;fontSize=13;fontStyle=1;fontColor=#333333" vertex="1" parent="1">
+          <mxGeometry x="480" y="230" width="380" height="330" as="geometry" />
+        </mxCell>
+        <mxCell id="local" value="Kubernetes on Azure Local (on-prem)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;verticalAlign=top;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="510" y="280" width="320" height="250" as="geometry" />
+        </mxCell>
+        <mxCell id="radEdge" value="Radius Application" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;verticalAlign=top;fontSize=12;fontStyle=1;dashed=1" vertex="1" parent="1">
+          <mxGeometry x="535" y="320" width="270" height="185" as="geometry" />
+        </mxCell>
+        <mxCell id="feEdge" value="Frontend container" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12" vertex="1" parent="1">
+          <mxGeometry x="560" y="360" width="220" height="44" as="geometry" />
+        </mxCell>
+        <mxCell id="dbEdge" value="PostgreSQL&#10;(self-hosted Recipe)" style="shape=cylinder3;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=12;boundedLbl=1" vertex="1" parent="1">
+          <mxGeometry x="590" y="425" width="160" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#333333;strokeWidth=2" edge="1" parent="1" source="users" target="afd">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" value="active" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#0078d4;strokeWidth=2;fontColor=#0078d4;fontStyle=1" edge="1" parent="1" source="afd" target="aks">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" value="active" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;strokeColor=#0078d4;strokeWidth=2;fontColor=#0078d4;fontStyle=1" edge="1" parent="1" source="afd" target="local">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <mxCell id="note" value="Same Application definition &#8212; only the Environment (and its Recipes) differ" style="text;html=1;align=center;fontSize=12;fontStyle=2;fontColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="230" y="575" width="440" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

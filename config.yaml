@@ -1,156 +1,99 @@
-baseURL: "https://anotherdevops.blog/" # if your site is in 'https', then make sure your base url isn't written using 'http' otherwise your sitemap would contain http (as opposeed to https) URLs. This would affect Google indexing of your URLs.
+baseURL: "https://anotherdevops.blog/"
 title: Another DevOps Blog
-paginate: 5
-theme: PaperMod
+theme: beautifulhugo
+
+DefaultContentLanguage: en
 
 enableInlineShortcodes: true
 enableRobotsTXT: true
+enableGitInfo: false
+enableEmoji: true
 buildDrafts: false
 buildFuture: false
 buildExpired: false
-enableEmoji: true
-pygmentsUseClasses: true
-# googleAnalytics: UA-123-45
 
-minify:
-  disableXML: true
-  # minifyOutput: true
+pagination:
+  pagerSize: 5
 
-languages:
-  en:
-    languageName: "English"
-    weight: 1
-    taxonomies:
-      category: categories
-      tag: tags
-      series: series
-    menu:
-      main:
-      - name: Archive
-        url: archives
-        weight: 5
-      - name: Search
-        url: search/
-        weight: 10
-      - name: Tags
-        url: tags/
-        weight: 10
+taxonomies:
+  category: categories
+  tag: tags
+  series: series
 
 outputs:
   home:
-  - HTML
-  - RSS
-  - JSON
+    - HTML
+    - RSS
+    - JSON
+  section:
+    - HTML
+    - RSS
+  page:
+    - HTML
 
 params:
-  env: production # to enable google analytics, opengraph, twitter-cards and schema.
-  description: "Theme PaperMod - https://github.com/adityatelange/hugo-PaperMod"
-  author: Theme PaperMod
-  # author: ["Me", "You"] # multiple authors
+  subtitle: "A blog about DevOps stuff that I find interesting. I hope you find it interesting too."
+  mainSections:
+    - posts
+  logo: "https://raw.githubusercontent.com/Dylan-Prins/Blog/main/assets/images/favicon.png"
+  favicon: "https://raw.githubusercontent.com/Dylan-Prins/Blog/main/assets/images/favicon.png"
+  dateFormat: ":date_long"
+  rss: true
+  readingTime: true
+  wordCount: true
+  colorScheme: "auto"
+  socialShare: true
+  showRelatedPosts: true
+  commit: false
 
-  defaultTheme: auto
-  # disableThemeToggle: true
-  ShowShareButtons: true
-  ShowReadingTime: true
-  # disableSpecial1stPost: true
-  displayFullLangName: true
-  ShowPostNavLinks: true
-  ShowBreadCrumbs: false
-  ShowCodeCopyButtons: true
-  ShowRssButtonInSectionTermList: true
-  ShowToc: false
-  comments: false
-  images: ["https://raw.githubusercontent.com/Dylan-Prins/Blog/main/assets/images/favicon.png"] # default path for images
+  search:
+    provider: fuse
 
-  profileMode:
-    enabled: false
-    title: PaperMod
-    imageUrl: "#"
-    imageTitle: my image
-    # imageWidth: 120
-    # imageHeight: 120
-    buttons:
-    - name: Archives
-      url: archives
-    - name: Tags
-      url: tags
+  author:
+    name: Dylan Prins
+    github: Dylan-Prins
+    linkedin: in/dylan-prins-a50b01115
 
-  homeInfoParams:
-    Title: "Home"
-    Content: >
-      This is a blog about DevOps stuff that I find interesting. I hope you find it interesting too.
-
-  socialIcons:
-  - name: github
-    url: "https://github.com/Dylan-Prins"
-  - name: linkedin
-    url: "https://www.linkedin.com/in/dylan-prins-a50b01115/"
-  - name: Rss
-    url: "index.xml"
-
-  # editPost:
-  #   URL: "https://github.com/adityatelange/hugo-PaperMod/tree/exampleSite/content"
-  #   Text: "Suggest Changes" # edit text
-  #   appendFilePath: true # to append file path to Edit link
-
-  label:
-      text: "Another Devops Blog"
-      icon: "https://raw.githubusercontent.com/Dylan-Prins/Blog/main/assets/images/favicon.png"
-      iconHeight: 35
-
-  # analytics:
-  #     google:
-  #         SiteVerificationTag: "XYZabc"
-
-  assets:
-    disableHLJS: true
-    favicon: "https://raw.githubusercontent.com/Dylan-Prins/Blog/main/assets/images/favicon.png"
-    favicon16x16: "https://raw.githubusercontent.com/Dylan-Prins/Blog/main/assets/images/favicon.png"
-    favicon32x32: "https://raw.githubusercontent.com/Dylan-Prins/Blog/main/assets/images/favicon.png"
-#     apple_touch_icon: "<link / abs url>"
-#     safari_pinned_tab: "<link / abs url>"
-
-# cover:
-#     hidden: true # hide everywhere but not in structured data
-#     hiddenInList: true # hide on list pages and home
-#     hiddenInSingle: true # hide on single page
-
-# fuseOpts:
-#     isCaseSensitive: false
-#     shouldSort: true
-#     location: 0
-#     distance: 1000
-#     threshold: 0.4
-#     minMatchCharLength: 0
-#     limit: 10 # refer: https://www.fusejs.io/api/methods.html#search
-#     keys: ["title", "permalink", "summary", "content"]
+menu:
+  main:
+    - identifier: posts
+      name: Posts
+      url: posts/
+      weight: 1
+    - identifier: tags
+      name: Tags
+      url: tags/
+      weight: 2
+    - identifier: archives
+      name: Archive
+      url: archives/
+      weight: 3
+    - identifier: search
+      name: Search
+      url: search/
+      weight: 4
 
 markup:
   goldmark:
     renderer:
       unsafe: true
+    parser:
+      attribute:
+        block: true
   highlight:
     noClasses: false
-    # anchorLineNos: true
-# codeFences: true
-# guessSyntax: true
-# lineNos: true
-# style: monokai
 
 privacy:
   vimeo:
     disabled: true
     simple: true
-
-  twitter:
+  x:
     disabled: false
     enableDNT: true
     simple: true
-
   instagram:
     disabled: true
     simple: true
-
   youtube:
     disabled: true
     privacyEnhanced: true
@@ -158,5 +101,5 @@ privacy:
 services:
   instagram:
     disableInlineCSS: true
-  twitter:
+  x:
     disableInlineCSS: false

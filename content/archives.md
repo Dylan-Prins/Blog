@@ -1,6 +1,5 @@
 ---
-title: "Archive"
-layout: "archives"
-# url: "/archives"
-summary: "archives"
+title: "Archives"
+layout: archive
+description: All posts in chronological order
 ---
