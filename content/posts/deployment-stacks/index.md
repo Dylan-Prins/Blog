@@ -11,9 +11,13 @@ tags:
 draft: true
 ---
 
-One Bicep deployment for your network, shared services, and workloads is easy to manage at first. As the environment grows, a small workload change still runs through the deployment process for the whole environment. Eventually, the template may hit ARM's 4 MB limit.
+We used to deploy the entire subscription in one go. The network, shared services, and workloads all went through the same Bicep entrypoint. It was straightforward to follow: one deployment described the environment.
 
-Separate stacks let you update a workload without redeploying its network. To do that, the workload needs the subnet ID from the network stack.
+That became harder to maintain as the templates grew. We were using Azure Verified Modules (AVM), and combining those modules in a subscription-wide deployment brought us up against ARM's 4 MB template limit. The Bicep files could look manageable while the compiled template included the definitions of all those modules.
+
+There was also the repeated work. Changing a workload meant submitting the whole environment again, including the network it depended on. Splitting the deployment into smaller stacks gave us a way to update those parts separately.
+
+The next question was how to keep them connected. A workload still needs its subnet ID, even when the network belongs to another stack. I like to let Bicep read that value from the network stack, with the option to supply a subnet ID directly when using a different network.
 
 We'll pass deployment outputs, such as resource IDs and names, between stacks. This doesn't copy databases or files or transfer ownership of resources.
 
@@ -104,9 +108,11 @@ az stack group create \
 
 In this example, `detachAll` prevents a resource from being deleted just because you removed it from the template. It doesn't protect resources that remain in the template from being changed. `none` disables stack deny protection. Review both settings before using this approach in production.
 
-### 2. Read the network stack directly in Bicep
+### 2. Read the network stack or supply a subnet ID
 
-The stack stores its deployment outputs. In the workload template, declare the network stack as an `existing` resource and read `properties.outputs.subnetId.value`. Bicep handles the lookup during deployment, so there is no separate REST call or output-passing script.
+The stack stores its deployment outputs. In the workload template, declare the network stack as an `existing` resource. I use `@nullIfNotFound()` so a missing stack evaluates to `null`, and safe access lets the template handle that result.
+
+The optional `subnetId` parameter takes precedence. If it's omitted, Bicep reads the stack's output. This keeps the same workload template usable with either a stack-managed network or a subnet supplied by the caller, without a separate REST call or output-passing script.
 
 Save this as `workload.bicep`:
 
@@ -116,11 +122,15 @@ targetScope = 'resourceGroup'
 param location string = resourceGroup().location
 param networkResourceGroupName string = 'rg-network-demo'
 param networkStackName string = 'network'
+param subnetId string?
 
+@nullIfNotFound()
 resource networkStack 'Microsoft.Resources/deploymentStacks@2024-03-01' existing = {
   name: networkStackName
   scope: resourceGroup(networkResourceGroupName)
 }
+
+var resolvedSubnetId = subnetId ?? networkStack.?properties.?outputs.?subnetId.?value ?? ''
 
 resource nic 'Microsoft.Network/networkInterfaces@2024-05-01' = {
   name: 'nic-workload-demo'
@@ -132,7 +142,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2024-05-01' = {
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           subnet: {
-            id: networkStack.properties.outputs.subnetId.value
+            id: resolvedSubnetId
           }
         }
       }
@@ -141,7 +151,9 @@ resource nic 'Microsoft.Network/networkInterfaces@2024-05-01' = {
 }
 ```
 
-The `existing` declaration only reads the network stack. It doesn't redeploy it or take ownership of its resources. The stack must already exist and expose the `subnetId` output.
+The `existing` declaration only reads the network stack. It doesn't redeploy it or take ownership of its resources. When no subnet parameter is supplied, the stack needs to exist and expose the `subnetId` output.
+
+Use a Bicep version that supports `@nullIfNotFound()`; this example was compiled with Bicep 0.49.2. The decorator handles a resource that isn't found, not missing read permissions. One source must supply a valid subnet ID. The final `''` is only a fallback for a missing value, not a usable subnet; passing an empty string explicitly also overrides the stack output.
 
 Here, the source stack lives at resource group scope. For a subscription-scoped stack that manages a resource group as described above, use `scope: subscription()` in the existing declaration instead. The output expression stays the same.
 
@@ -155,6 +167,8 @@ az stack group create \
   --action-on-unmanage detachAll \
   --deny-settings-mode none
 ```
+
+To use a subnet supplied by the caller, add `--parameters subnetId='<full-subnet-resource-id>'` to that command. A non-null parameter overrides the stack output; leave it out to use the network stack.
 
 The workload template uses the subnet without managing it or including a network module. All output lookup and consumption happens in Bicep; the CLI commands only submit the two stack deployments.
 
@@ -196,7 +210,7 @@ Database and storage migrations need their own plan for replication, backups, an
 
 ## Choosing your stack boundaries
 
-Group resources that change together and expose the values other stacks need. In this example, a Bicep reference to the network stack's output lets the workload deploy independently once the network exists.
+Group resources that change together and expose the values other stacks need. In this example, the workload can read the network stack's output or use a subnet ID passed as a parameter.
 
 Have the pipeline deploy only the affected stacks, then compare request sizes and pipeline timings with the original deployment. The split needs to reduce the work ARM handles on each run to be worth maintaining.
 
@@ -205,5 +219,6 @@ Have the pipeline deploy only the affected stacks, then compare request sizes an
 - [Deployment stacks in Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deployment-stacks)
 - [ARM template best practices and limits](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/best-practices#template-limits)
 - [Reference existing resources in Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/existing-resource)
+- [The nullIfNotFound decorator](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/resource-declaration#nullifnotfound)
 - [Linked and nested templates](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/linked-templates)
 - [Bicep outputs](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/outputs)
