@@ -1,6 +1,7 @@
 baseURL: "https://anotherdevops.blog/" # if your site is in 'https', then make sure your base url isn't written using 'http' otherwise your sitemap would contain http (as opposeed to https) URLs. This would affect Google indexing of your URLs.
 title: Another DevOps Blog
-paginate: 5
+pagination:
+  pagerSize: 5
 theme: PaperMod
 
 enableInlineShortcodes: true
@@ -18,7 +19,7 @@ minify:
 
 languages:
   en:
-    languageName: "English"
+    label: "English"
     weight: 1
     taxonomies:
       category: categories

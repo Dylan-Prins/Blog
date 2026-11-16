@@ -13,36 +13,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Git checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       with:
         fetch-depth: 0
-
-    - name: Update theme
-      run: git submodule update --init --recursive
+        submodules: recursive
+        persist-credentials: false
 
     - name: Setup Hugo
-      uses: peaceiris/actions-hugo@v2
+      uses: peaceiris/actions-hugo@d1c81a15d4e6dca7086a17b9c2565cb70fd576bf # v3.3.0
       with:
-        hugo-version: 'latest'
-        extended: true
-
-    # - run: |
-    #     npm install
-    #     npm i -g postcss-cli
-    #     npm i && HUGO_ENVIRONMENT=production hugo --gc
+        hugo-version: '0.170.0'
 
     - name: Build
       run: hugo  --enableGitInfo --minify
 
-    # - name: Deploy
-    #   uses: peaceiris/actions-gh-pages@v3
-    #   with:
-    #     publish_branch: gh-pages
-    #     publish_dir: ./public
-    #     github_token: ${{ secrets.GITHUB_TOKEN }}
-
     - name: Deploy to GitHub Pages
-      uses: crazy-max/ghaction-github-pages@v3
+      uses: crazy-max/ghaction-github-pages@1d6ee9b181a81033a16bd707a1401afa978daab4 # v5.0.0
       with:
         target_branch: gh-pages
         build_dir: public

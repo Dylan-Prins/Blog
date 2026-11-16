@@ -1,8 +1,8 @@
 ---
 author: Dylan Prins
-title: "Kleinere Azure deployments met deployment stacks"
+title: "Smaller Azure deployments with deployment stacks"
 date: 2026-11-16T12:28:00+01:00
-description: Deel outputs tussen deployment stacks om alleen gewijzigde onderdelen te deployen en grote ARM-templates te voorkomen.
+description: Share outputs between Azure deployment stacks to deploy only what changed and keep ARM templates within the 4 MB limit.
 tags:
     - Azure
     - Bicep
@@ -11,49 +11,49 @@ tags:
 draft: true
 ---
 
-Een netwerk, gedeelde services en alle workloads in één Bicep-deployment: het begint overzichtelijk, maar kan uitgroeien tot een flinke template. Een kleine wijziging gaat dan door hetzelfde deploymentproces als de volledige omgeving. Uiteindelijk loop je misschien ook tegen de ARM-templatelimiet van 4 MB aan.
+Putting your network, shared services, and workloads in one Bicep deployment is convenient at first. As the environment grows, though, a small workload change still goes through the deployment process for the whole environment. The template can also grow large enough to hit ARM's 4 MB limit.
 
-Deployment stacks kunnen helpen om je infrastructuur op te delen in onderdelen met een eigen lifecycle. Maar hoe gebruikt een workload dan het subnet dat een andere stack heeft aangemaakt?
+Splitting that deployment into separate stacks lets you update a workload without redeploying its network. The workload still needs the subnet ID, so you need a way to pass that value between stacks.
 
-In dit artikel betekent **data overhalen** het doorgeven van deploymentoutputs, zoals resource-ID's en namen. Het gaat niet om het kopiëren van databases of bestanden, en ook niet om het verplaatsen van resources tussen stacks.
+Here, sharing data means passing deployment outputs such as resource IDs and names. Copying databases or files, and transferring resource ownership between stacks, are separate tasks.
 
-## Wat is een deployment stack?
+## What is a deployment stack?
 
-Een Azure deployment stack is een resource van het type `Microsoft.Resources/deploymentStacks`. Je levert een Bicep- of ARM-template aan en de stack houdt bij welke resources hij beheert.
+An Azure deployment stack is a resource of type `Microsoft.Resources/deploymentStacks`. You supply a Bicep or ARM template, and the stack tracks the resources it manages.
 
-Bij een update bepaalt `actionOnUnmanage` wat er gebeurt met resources die niet meer in de template staan:
+When you update a stack, `actionOnUnmanage` determines what happens to resources that are no longer in the template:
 
-- `detachAll`: de resources blijven bestaan, maar worden niet meer door de stack beheerd.
-- `deleteResources`: verwijder de niet langer beheerde resources.
-- `deleteAll`: verwijder ook niet langer beheerde resourcegroepen.
+- `detachAll`: leave the resources in place, but stop managing them through the stack.
+- `deleteResources`: delete resources that are no longer managed.
+- `deleteAll`: also delete resource groups that are no longer managed.
 
-Daarnaast kun je deny settings gebruiken om wijzigingen of verwijderingen buiten de stack te beperken. Een stack is dus een beheerlaag rondom een deployment, geen alternatief voor de ARM-engine.
+You can also use deny settings to restrict updates or deletions outside the stack. ARM still handles the deployment itself.
 
-**Een stack maakt deployments niet automatisch sneller en verhoogt de ARM-limieten niet.** De winst komt uit de grenzen die je kiest en uit het niet opnieuw deployen van onderdelen die niet gewijzigd zijn.
+Stacks don't raise ARM limits or automatically make deployments faster. Any improvement comes from how you split the infrastructure and whether your pipeline skips components that haven't changed.
 
-## Splits op lifecycle, niet alleen op bestand
+## Split by lifecycle
 
-Een praktische verdeling is:
+For a platform with several workloads, you could use these boundaries:
 
-| Stack | Beheert | Wijzigt wanneer |
+| Stack | Manages | Changes when |
 | --- | --- | --- |
-| Network | VNet en subnets | De netwerkconfiguratie verandert |
-| Shared services | Gedeelde platformresources | Een platformvoorziening verandert |
-| Workload | Resources voor één applicatie | De infrastructuur van die applicatie verandert |
+| Network | VNet and subnets | Network configuration changes |
+| Shared services | Shared platform resources | A platform service changes |
+| Workload | Resources for one application | That application's infrastructure changes |
 
-Elke stack heeft een eigen entrypoint en wordt afzonderlijk aangeroepen. Bicep-modules blijven handig **binnen** die entrypoints, maar één hoofdtemplate met veel lokale modules is nog steeds één deploymentrequest met daarin de moduletemplates.
+Each stack has its own entrypoint and is deployed separately. Bicep modules are still useful within those entrypoints. A single main template with many local modules, however, still produces one deployment request containing the module templates.
 
-Een workloaddeployment hoeft het netwerk niet opnieuw te deployen. Hij heeft alleen een klein contract nodig, bijvoorbeeld een subnet-ID.
+The workload deployment can consume a subnet ID without including the network deployment in its template.
 
-## Voorbeeld: een subnet-ID doorgeven
+## Example: passing a subnet ID
 
-We gebruiken twee resource-group-scoped stacks in dezelfde subscription en resourcegroep. De netwerkstack beheert een VNet met subnet; de workloadstack beheert een netwerkinterface die dat subnet gebruikt.
+This example uses two resource-group-scoped stacks in the same subscription and resource group. The network stack manages a VNet and subnet. The workload stack manages a network interface that uses that subnet.
 
-Je hebt een recente Azure CLI met `az stack` en Bicep-ondersteuning nodig, een bestaande resourcegroep en een ingelogde identiteit met de benodigde deployment-, stack- en resourcepermissies. Het lezen van stackoutputs vereist ook leesrechten op de bronstack. In dit voorbeeld gebruiken we Azure public cloud.
+You'll need a recent Azure CLI with `az stack` and Bicep support, an existing resource group, and a signed-in identity with the necessary deployment, stack, and resource permissions. Reading outputs also requires read access to the source stack. The example uses Azure public cloud.
 
-### 1. De netwerkstack publiceert een output
+### 1. Publish an output from the network stack
 
-Sla dit op als `network.bicep`:
+Save this as `network.bicep`:
 
 ```bicep
 targetScope = 'resourceGroup'
@@ -83,7 +83,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
 output subnetId string = '${vnet.id}/subnets/workloads'
 ```
 
-Deploy vervolgens de netwerkstack:
+Deploy the network stack:
 
 ```bash
 set -euo pipefail
@@ -98,13 +98,13 @@ az stack group create \
   --deny-settings-mode none
 ```
 
-`detachAll` voorkomt in dit voorbeeld dat het weglaten van een resource uit de template meteen tot verwijdering leidt. Het is geen bescherming tegen wijzigingen aan resources die nog wél in de template staan. `none` schakelt stack-denybeveiliging uit; kies voor productie bewust je beheer- en beveiligingsinstellingen.
+In this example, `detachAll` prevents a resource from being deleted just because you removed it from the template. It doesn't protect resources that remain in the template from being changed. `none` disables stack deny protection. Review both settings before using this approach in production.
 
-### 2. Lees de output na een succesvolle deployment
+### 2. Read the output after a successful deployment
 
-De stack bewaart de outputs van zijn deployment. Met de REST API lezen we expliciet `properties.outputs.subnetId.value`, zonder afhankelijk te zijn van de weergave van stackproperties in een CLI-versie.
+The stack stores its deployment outputs. We'll use the REST API to read `properties.outputs.subnetId.value` explicitly, avoiding differences in how CLI versions present stack properties.
 
-Voer dit uit in dezelfde Bash-sessie, pas nadat de netwerkdeployment succesvol is afgerond:
+Run this in the same Bash session, after the network deployment has completed successfully:
 
 ```bash
 subscriptionId="$(az account show --query id --output tsv)"
@@ -117,16 +117,16 @@ subnetId="$(az rest \
   --output tsv)"
 
 if [[ -z "$subnetId" || "$subnetId" == "null" || "$subnetId" == "None" ]]; then
-  printf '%s\n' 'De netwerkstack heeft geen bruikbare subnetId-output.' >&2
+  printf '%s\n' 'The network stack has no usable subnetId output.' >&2
   exit 1
 fi
 ```
 
-Gebruik altijd expliciet de juiste subscription, scope en stacknaam. Als een brondeployment faalt, laat de afhankelijke deployment dan niet doorgaan met eerder opgeslagen outputs.
+Check that you're using the intended subscription, scope, and stack name. If the source deployment fails, stop the dependent deployment rather than letting it use previously stored outputs.
 
-### 3. De workloadstack ontvangt een parameter
+### 3. Pass the value to the workload stack
 
-Sla dit op als `workload.bicep`:
+Save this as `workload.bicep`:
 
 ```bicep
 targetScope = 'resourceGroup'
@@ -153,7 +153,7 @@ resource nic 'Microsoft.Network/networkInterfaces@2024-05-01' = {
 }
 ```
 
-Deploy de tweede stack met de opgehaalde waarde:
+Deploy the second stack with the value you retrieved:
 
 ```bash
 az stack group create \
@@ -165,56 +165,56 @@ az stack group create \
   --deny-settings-mode none
 ```
 
-De workloadtemplate bevat geen netwerkmodule en beheert het subnet niet. Hij gebruikt alleen het ID. De volgorde tussen deze twee afzonderlijke deployments regel je in de pipeline; een `dependsOn` binnen één template doet dat niet voor losse pipelinejobs.
+The workload template uses the subnet ID without managing the subnet or including a network module. Your pipeline must order the two deployments. A `dependsOn` within a template doesn't establish dependencies between separate pipeline jobs.
 
-## Hoe verlaagt dit deploymenttijden?
+## Where the deployment-time savings come from
 
-Bij de eerste uitrol moet de netwerkstack klaar zijn voordat de workloadstack start. Bij latere wijzigingen kun je selectiever werken:
+On the first rollout, the network stack must finish before the workload stack starts. For later changes:
 
-1. Deploy de netwerkstack alleen bij relevante wijzigingen aan zijn template, parameters of modules.
-2. Lees voor een workloaddeployment de outputs van de succesvol uitgerolde netwerkstack.
-3. Deploy alleen de gewijzigde workloadstack.
-4. Laat onafhankelijke workloadstacks parallel draaien als hun afhankelijkheden dat toelaten.
+1. Deploy the network stack when its template, parameters, or modules change.
+2. Read the outputs of the successfully deployed network stack when deploying a workload.
+3. Deploy only the workload stacks affected by the change.
+4. Run independent workload deployments in parallel where their dependencies allow it.
 
-Een ongewijzigde bronstack hoeft dus niet opnieuw uitgerold te worden om zijn output te gebruiken. Houd wel rekening met drift: plan periodieke controles en reconciliatie naast je wijzigingsgestuurde deployments.
+You don't need to redeploy an unchanged source stack to read its outputs. You still need to check for drift, so schedule periodic checks and reconciliation alongside change-driven deployments.
 
-Meet de totale pipelinetijd voor en na de splitsing. Trage resourceproviders, throttling en extra stackaanroepen kunnen de winst beperken. Er is geen gegarandeerde versnelling.
+Measure total pipeline time before and after the split. Slow resource providers, throttling, and additional stack calls can limit the savings.
 
-## En de ARM-limiet van 4 MB?
+## Keeping within ARM's 4 MB limit
 
-Microsoft documenteert een maximum van **4 MB per ARM-template** en **1 MB per resourcedefinitie**. Ook een parameterbestand is beperkt tot 4 MB. De limieten gelden voor de uiteindelijke template na uitbreiding van onder andere iteraties en parameter- en variabelewaarden. Een te groot deploymentrequest kan daarom ook problemen veroorzaken als je bronbestand kleiner is dan 4 MB.
+Microsoft documents a maximum of **4 MB per ARM template** and **1 MB per resource definition**. A parameter file is also limited to 4 MB. The template limits apply after expansion of iterative resource definitions and parameter and variable values. A deployment request can therefore be too large even when the source file is smaller than 4 MB.
 
-Door het netwerk en de workloads als afzonderlijke deployments aan te bieden, hoeft niet alle infrastructuur in hetzelfde request mee. Geef kleine outputs door, geen volledig netwerkobject of enorme configuratiearrays.
+Deploying the network and workloads separately keeps their infrastructure definitions out of the same request. Pass small outputs such as IDs instead of entire network objects or large configuration arrays.
 
-Let op:
+There are still limits to account for:
 
-- Elke stackdeployment moet zelf nog steeds binnen de toepasselijke ARM-limieten blijven.
-- Lokale Bicep-modules verbeteren de structuur, maar garanderen geen kleiner hoofdrequest.
-- Linked templates hebben andere mogelijkheden dan inline nested templates, maar heffen niet alle deploymentlimieten op.
-- Controleer niet alleen de grootte van je Bicep-bronbestand; kijk naar de gegenereerde ARM-template én naar uitbreiding tijdens deployment.
+- Every stack deployment must remain within the applicable ARM limits.
+- Local Bicep modules improve structure but don't guarantee a smaller main request.
+- Linked templates offer different options from inline nested templates, but don't remove all deployment limits.
+- Check the generated ARM template and expansion during deployment, rather than relying on the size of the Bicep source file.
 
-De oplossing is dus niet “een grote template in een stack stoppen”, maar **meerdere begrensde deployments met kleine interfaces maken**.
+Wrapping an oversized template in a stack won't help. Splitting it into separately submitted deployments can reduce the size of each request.
 
-## Maak van outputs een stabiel contract
+## Treat outputs as an interface
 
-Een outputnaam zoals `subnetId` is een interface tussen teams en pipelines. Verwijder of hernoem die niet zonder de consumers mee te nemen. Bij een wijziging in het subnet-ID moet je ook beoordelen welke workloads opnieuw moeten worden uitgerold.
+An output name such as `subnetId` becomes an interface between teams and pipelines. Coordinate changes with its consumers before removing or renaming it. If the subnet ID itself changes, check which workloads need to be redeployed.
 
-Publiceer alleen niet-geheime waarden. Wachtwoorden, tokens en connection strings horen niet in gewone outputs, pipeline-artifacts of logs. Gebruik daarvoor bijvoorbeeld Key Vault en managed identities.
+Publish only non-secret values. Keep passwords, tokens, and connection strings out of ordinary outputs, pipeline artifacts, and logs. Use Key Vault and managed identities where appropriate.
 
-Voorkom ook circulaire afhankelijkheden en laat dezelfde resource niet door meerdere stacks beheren. Het delen van een resource-ID draagt geen eigenaarschap over. Werk bij het opsplitsen van bestaande infrastructuur een aparte migratie uit: detach bewust vanuit de oude stack voordat de nieuwe stack het beheer overneemt, controleer deny settings en voorkom onbedoelde verwijdering.
+Avoid circular dependencies, and don't have multiple stacks manage the same resource. Sharing a resource ID doesn't transfer ownership. When splitting existing infrastructure, handle ownership as a separate migration: deliberately detach resources from the old stack before the new stack takes over, review deny settings, and guard against accidental deletion.
 
-Dit patroon verplaatst geen applicatiedata. Een database- of storage-migratie vraagt een afzonderlijk plan voor bijvoorbeeld replicatie, back-ups en de omschakeling.
+Database and storage migrations need their own plan for replication, backups, and cutover. Passing stack outputs doesn't move application data.
 
-## Conclusie
+## Choosing your stack boundaries
 
-Deployment stacks geven je een duidelijke beheergrens. Door outputs als klein contract te gebruiken, kunnen andere stacks bestaande infrastructuur benutten zonder die opnieuw mee te deployen.
+For this example, the subnet ID is all the workload stack needs from the network stack. That small interface lets the workload deploy independently once the network exists.
 
-Daarmee maak je gerichte deployments mogelijk en verklein je de templates die ARM per deployment verwerkt. De belangrijkste ontwerpkeuze blijft: welke resources veranderen samen, en welke hoeven alleen elkaars ID te kennen?
+Use the same reasoning when splitting your own templates: group resources that change together, expose the values their consumers need, and have the pipeline deploy only the affected stacks. Then check request sizes and pipeline timings to see whether the split solved your problem.
 
-## Referenties
+## References
 
 - [Deployment stacks in Bicep](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/deployment-stacks)
-- [ARM-templatebest practices en limieten](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/best-practices#template-limits)
+- [ARM template best practices and limits](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/best-practices#template-limits)
 - [Deployment Stacks: Get at Resource Group](https://learn.microsoft.com/en-us/rest/api/resources/deployment-stacks/get-at-resource-group?view=rest-resources-2024-03-01)
-- [Linked en nested templates](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/linked-templates)
-- [Bicep-outputs](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/outputs)
+- [Linked and nested templates](https://learn.microsoft.com/en-us/azure/azure-resource-manager/templates/linked-templates)
+- [Bicep outputs](https://learn.microsoft.com/en-us/azure/azure-resource-manager/bicep/outputs)
