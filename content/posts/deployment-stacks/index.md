@@ -11,11 +11,11 @@ tags:
 draft: true
 ---
 
-Putting your network, shared services, and workloads in one Bicep deployment is convenient at first. As the environment grows, though, a small workload change still goes through the deployment process for the whole environment. The template can also grow large enough to hit ARM's 4 MB limit.
+One Bicep deployment for your network, shared services, and workloads is easy to manage at first. As the environment grows, a small workload change still runs through the deployment process for the whole environment. Eventually, the template may hit ARM's 4 MB limit.
 
-Splitting that deployment into separate stacks lets you update a workload without redeploying its network. The workload still needs the subnet ID, so you need a way to pass that value between stacks.
+Separate stacks let you update a workload without redeploying its network. To do that, the workload needs the subnet ID from the network stack.
 
-Here, sharing data means passing deployment outputs such as resource IDs and names. Copying databases or files, and transferring resource ownership between stacks, are separate tasks.
+We'll pass deployment outputs, such as resource IDs and names, between stacks. This doesn't copy databases or files or transfer ownership of resources.
 
 ## What is a deployment stack?
 
@@ -29,7 +29,7 @@ When you update a stack, `actionOnUnmanage` determines what happens to resources
 
 You can also use deny settings to restrict updates or deletions outside the stack. ARM still handles the deployment itself.
 
-Stacks don't raise ARM limits or automatically make deployments faster. Any improvement comes from how you split the infrastructure and whether your pipeline skips components that haven't changed.
+ARM limits still apply to stacks. Deployment-time savings depend on how you split the infrastructure and whether your pipeline skips components that haven't changed.
 
 ## Split by lifecycle
 
@@ -41,9 +41,7 @@ For a platform with several workloads, you could use these boundaries:
 | Shared services | Shared platform resources | A platform service changes |
 | Workload | Resources for one application | That application's infrastructure changes |
 
-Each stack has its own entrypoint and is deployed separately. Bicep modules are still useful within those entrypoints. A single main template with many local modules, however, still produces one deployment request containing the module templates.
-
-The workload deployment can consume a subnet ID without including the network deployment in its template.
+Deploy each stack through its own entrypoint. You can use Bicep modules within those entrypoints, but a main template with many local modules still produces one deployment request containing the module templates. Passing the subnet ID as a parameter keeps the network deployment out of the workload template.
 
 ## Example: passing a subnet ID
 
@@ -102,7 +100,7 @@ In this example, `detachAll` prevents a resource from being deleted just because
 
 ### 2. Read the output after a successful deployment
 
-The stack stores its deployment outputs. We'll use the REST API to read `properties.outputs.subnetId.value` explicitly, avoiding differences in how CLI versions present stack properties.
+The stack stores its deployment outputs. Reading `properties.outputs.subnetId.value` through the REST API avoids differences in how CLI versions present stack properties.
 
 Run this in the same Bash session, after the network deployment has completed successfully:
 
@@ -122,7 +120,7 @@ if [[ -z "$subnetId" || "$subnetId" == "null" || "$subnetId" == "None" ]]; then
 fi
 ```
 
-Check that you're using the intended subscription, scope, and stack name. If the source deployment fails, stop the dependent deployment rather than letting it use previously stored outputs.
+Check the subscription, scope, and stack name before reading the output. If the source deployment fails, stop the dependent deployment so it can't use outputs left over from an earlier deployment.
 
 ### 3. Pass the value to the workload stack
 
@@ -176,24 +174,22 @@ On the first rollout, the network stack must finish before the workload stack st
 3. Deploy only the workload stacks affected by the change.
 4. Run independent workload deployments in parallel where their dependencies allow it.
 
-You don't need to redeploy an unchanged source stack to read its outputs. You still need to check for drift, so schedule periodic checks and reconciliation alongside change-driven deployments.
+You can read outputs from an unchanged source stack without redeploying it. Schedule periodic drift checks and reconciliation as well; a pipeline that only reacts to source changes won't catch changes made outside it.
 
 Measure total pipeline time before and after the split. Slow resource providers, throttling, and additional stack calls can limit the savings.
 
 ## Keeping within ARM's 4 MB limit
 
-Microsoft documents a maximum of **4 MB per ARM template** and **1 MB per resource definition**. A parameter file is also limited to 4 MB. The template limits apply after expansion of iterative resource definitions and parameter and variable values. A deployment request can therefore be too large even when the source file is smaller than 4 MB.
+Microsoft documents a maximum of 4 MB per ARM template and 1 MB per resource definition. A parameter file is also limited to 4 MB. The template limits apply after expansion of iterative resource definitions and parameter and variable values. A deployment request can therefore be too large even when the source file is smaller than 4 MB.
 
 Deploying the network and workloads separately keeps their infrastructure definitions out of the same request. Pass small outputs such as IDs instead of entire network objects or large configuration arrays.
 
-There are still limits to account for:
+When checking deployment sizes:
 
 - Every stack deployment must remain within the applicable ARM limits.
 - Local Bicep modules improve structure but don't guarantee a smaller main request.
 - Linked templates offer different options from inline nested templates, but don't remove all deployment limits.
 - Check the generated ARM template and expansion during deployment, rather than relying on the size of the Bicep source file.
-
-Wrapping an oversized template in a stack won't help. Splitting it into separately submitted deployments can reduce the size of each request.
 
 ## Treat outputs as an interface
 
@@ -207,9 +203,9 @@ Database and storage migrations need their own plan for replication, backups, an
 
 ## Choosing your stack boundaries
 
-For this example, the subnet ID is all the workload stack needs from the network stack. That small interface lets the workload deploy independently once the network exists.
+Group resources that change together and expose the values other stacks need. In this example, passing the subnet ID lets the workload deploy independently once the network exists.
 
-Use the same reasoning when splitting your own templates: group resources that change together, expose the values their consumers need, and have the pipeline deploy only the affected stacks. Then check request sizes and pipeline timings to see whether the split solved your problem.
+Have the pipeline deploy only the affected stacks, then compare request sizes and pipeline timings with the original deployment. The split needs to reduce the work ARM handles on each run to be worth maintaining.
 
 ## References
 
