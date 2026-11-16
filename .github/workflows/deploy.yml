@@ -27,6 +27,14 @@ jobs:
     - name: Build
       run: hugo  --enableGitInfo --minify
 
+    - name: Add unlisted deployment stacks preview
+      env:
+        PREVIEW_DIR: ${{ runner.temp }}/blog-draft-preview
+      run: |
+        hugo --enableGitInfo --minify --buildDrafts --destination "$PREVIEW_DIR"
+        mkdir -p public/posts/deployment-stacks
+        cp "$PREVIEW_DIR/posts/deployment-stacks/index.html" public/posts/deployment-stacks/index.html
+
     - name: Deploy to GitHub Pages
       uses: crazy-max/ghaction-github-pages@1d6ee9b181a81033a16bd707a1401afa978daab4 # v5.0.0
       with:

@@ -9,6 +9,7 @@ tags:
     - Deployment Stacks
     - Platform Engineering
 draft: true
+robotsNoIndex: true
 ---
 
 We used to deploy the entire subscription in one go. The network, shared services, and workloads all went through the same Bicep entrypoint. It was straightforward to follow: one deployment described the environment.
