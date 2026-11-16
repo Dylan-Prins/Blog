@@ -19,7 +19,7 @@ There was also the repeated work. Changing a workload meant submitting the whole
 
 The next question was how to keep them connected. A workload still needs its subnet ID, even when the network belongs to another stack. I like to let Bicep read that value from the network stack, with the option to supply a subnet ID directly when using a different network.
 
-We'll pass deployment outputs, such as resource IDs and names, between stacks. This doesn't copy databases or files or transfer ownership of resources.
+We'll pass deployment outputs, such as resource IDs and names, between stacks.
 
 ## What is a deployment stack?
 
@@ -130,7 +130,7 @@ resource networkStack 'Microsoft.Resources/deploymentStacks@2024-03-01' existing
   scope: resourceGroup(networkResourceGroupName)
 }
 
-var resolvedSubnetId = subnetId ?? networkStack.?properties.?outputs.?subnetId.?value ?? ''
+var resolvedSubnetId = subnetId ?? networkStack.?properties.?outputs.?subnetId.?value
 
 resource nic 'Microsoft.Network/networkInterfaces@2024-05-01' = {
   name: 'nic-workload-demo'
@@ -197,16 +197,6 @@ When checking deployment sizes:
 - Local Bicep modules improve structure but don't guarantee a smaller main request.
 - Linked templates offer different options from inline nested templates, but don't remove all deployment limits.
 - Check the generated ARM template and expansion during deployment, rather than relying on the size of the Bicep source file.
-
-## Treat outputs as an interface
-
-An output name such as `subnetId` becomes an interface between teams and pipelines. Coordinate changes with its consumers before removing or renaming it. If the subnet ID itself changes, check which workloads need to be redeployed.
-
-Publish only non-secret values. Keep passwords, tokens, and connection strings out of ordinary outputs and logs. Use Key Vault and managed identities where appropriate.
-
-Avoid circular dependencies, and don't have multiple stacks manage the same resource. Sharing a resource ID doesn't transfer ownership. When splitting existing infrastructure, handle ownership as a separate migration: deliberately detach resources from the old stack before the new stack takes over, review deny settings, and guard against accidental deletion.
-
-Database and storage migrations need their own plan for replication, backups, and cutover. Passing stack outputs doesn't move application data.
 
 ## Choosing your stack boundaries
 
